@@ -8,19 +8,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Shield, User, LogOut } from "lucide-react";
+import { Shield, User, LogOut, Loader2 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { toast } from "sonner";
 
 const DashboardHeader = () => {
   const user = useStore((state) => state.user);
   const logout = useStore((state) => state.logout);
+  const loading = useStore((state) => state.loading);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    toast.success("Logged out successfully");
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully");
+      navigate("/");
+    } catch (error) {
+      toast.error("Logout failed");
+    }
   };
 
   return (
@@ -32,6 +37,9 @@ const DashboardHeader = () => {
         </Link>
 
         <div className="flex items-center gap-4">
+          {loading && (
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon" className="rounded-full">
@@ -43,6 +51,7 @@ const DashboardHeader = () => {
                 <div className="flex flex-col">
                   <span className="font-semibold">{user?.name}</span>
                   <span className="text-xs text-muted-foreground">{user?.email}</span>
+                  <span className="text-xs text-muted-foreground capitalize">{user?.role}</span>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
