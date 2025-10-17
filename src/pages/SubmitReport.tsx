@@ -131,12 +131,14 @@ const SubmitReport = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="infrastructure">Accident Issue</SelectItem>
+                     <SelectItem value="infrastructure">Accident Issue</SelectItem>
                     <SelectItem value="environment">Water Supply Issue</SelectItem>
-                    <SelectItem value="other">Drainage Problem</SelectItem>
+                    <SelectItem value="nature">Drainage Problem</SelectItem>
                     <SelectItem value="safety">Street Light Problem</SelectItem>
-                    <SelectItem value="other">Garbage Issue</SelectItem>
+                    <SelectItem value="local">Garbage Issue</SelectItem>
                     <SelectItem value="other">Road Damage</SelectItem>
+                    <SelectItem value="custom_other">Other Issue (Please Specify)</SelectItem>
+                  </SelectContent>
                   </SelectContent>
                 </Select>
               </div>
