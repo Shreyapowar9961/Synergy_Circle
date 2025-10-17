@@ -51,7 +51,7 @@ export const useStore = create<AppState>((set) => ({
   
   login: (email: string, password: string) => {
     // Mock authentication
-    if (email === 'admin@civic.gov' && password === 'admin123') {
+    if (email === 'admin@gmail.com' && password === 'adm12') {
       set({ 
         user: { 
           id: 'admin1', 
@@ -61,7 +61,7 @@ export const useStore = create<AppState>((set) => ({
         } 
       });
       return true;
-    } else if (email === 'citizen@example.com' && password === 'citizen123') {
+    } else if (email === 'citizen@gmail.com' && password === 'cit12') {
       set({ 
         user: { 
           id: 'user1', 
