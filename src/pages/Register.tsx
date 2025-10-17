@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Shield } from "lucide-react";
 import { useStore, UserRole } from "@/store/useStore";
 import { toast } from "sonner";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -16,38 +17,66 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<UserRole>("citizen");
   const [isLoading, setIsLoading] = useState(false);
+
   const register = useStore((state) => state.register);
+  const loading = useStore((state) => state.loading);
+  const error = useStore((state) => state.error);
+  const user = useStore((state) => state.user);
   const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/citizen/dashboard');
+      }
+    }
+  }, [user, navigate]);
+
+  // Show error toast when error occurs
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
 
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate API delay
-    setTimeout(() => {
-      const success = register(name, email, password, role);
-      
-      if (success) {
-        toast.success("Registration successful!");
-        // Navigate based on role
-        if (role === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate('/citizen/dashboard');
-        }
-      } else {
-        toast.error("Registration failed. Please try again.");
-      }
-      
-      setIsLoading(false);
-    }, 1000);
+    const success = await register(name, email, password, role);
+
+    if (success) {
+      toast.success("Registration successful!");
+      // Navigation will be handled by useEffect above
+    } else {
+      // Error is already handled by useEffect
+    }
+
+    setIsLoading(false);
   };
+
+  // Show loading spinner while checking auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <LoadingSpinner size="lg" text="Checking authentication..." />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -83,17 +112,19 @@ const Register = () => {
                 <Input
                   id="email"
                   type="email"
+                  placeholder="your@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
+                  placeholder="At least 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -105,6 +136,7 @@ const Register = () => {
                 <Input
                   id="confirmPassword"
                   type="password"
+                  placeholder="Repeat your password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
