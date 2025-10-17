@@ -65,7 +65,7 @@ export const useStore = create<AppState>((set) => ({
       set({ 
         user: { 
           id: 'user1', 
-          name: 'John Citizen', 
+          name: 'Citizen', 
           email, 
           role: 'citizen' 
         } 
