@@ -126,12 +126,13 @@ const AdminDashboard = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="infrastructure">Accident Issue</SelectItem>
-                    <SelectItem value="environment">Water Supply Issue</SelectItem>
-                    <SelectItem value="other">Drainage Problem</SelectItem>
-                    <SelectItem value="safety">Street Light Problem</SelectItem>
-                    <SelectItem value="other">Garbage Issue</SelectItem>
-                    <SelectItem value="other">Road Damage</SelectItem>
+                  <SelectItem value="Accident Issue">Accident Issue</SelectItem>
+                    <SelectItem value="Water Supply Issue">Water Supply Issue</SelectItem>
+                    <SelectItem value="Drainage Problem">Drainage Problem</SelectItem>
+                    <SelectItem value="Street Light Problem">Street Light Problem</SelectItem>
+                    <SelectItem value="Garbage Issue">Garbage Issue</SelectItem>
+                    <SelectItem value="Road Damage">Road Damage</SelectItem>
+                    <SelectItem value="Other Issue">Other Issue</SelectItem>
                 </SelectContent>
               </Select>
             </div>
