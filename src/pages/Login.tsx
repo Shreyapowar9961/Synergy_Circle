@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,47 +7,66 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Shield } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { toast } from "sonner";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    
-    // Core login function and navigation logic retained as instructed
+
     const login = useStore((state) => state.login);
+    const loading = useStore((state) => state.loading);
+    const error = useStore((state) => state.error);
+    const user = useStore((state) => state.user);
     const navigate = useNavigate();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (user) {
+            if (user.role === 'admin') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/citizen/dashboard');
+            }
+        }
+    }, [user, navigate]);
+
+    // Show error toast when error occurs
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
-        // --- Authentication Logic (UNCHANGED) ---
-        // Simulate API delay
-        setTimeout(() => {
-            const success = login(email, password);
-            
-            if (success) {
-                toast.success("Login successful! Redirecting...");
-                // Navigate based on role
-                const currentUser = useStore.getState().user;
-                if (currentUser?.role === 'admin') {
-                    navigate('/admin/dashboard');
-                } else {
-                    navigate('/citizen/dashboard');
-                }
-            } else {
-                toast.error("Invalid credentials. Try admin@civic.gov / admin123 or citizen@example.com / citizen123");
-            }
-            
-            setIsLoading(false);
-        }, 1000);
-        // --- End of Authentication Logic ---
+        const success = await login(email, password);
+
+        if (success) {
+            toast.success("Login successful!");
+            // Navigation will be handled by useEffect above
+        } else {
+            // Error is already handled by useEffect
+        }
+
+        setIsLoading(false);
     };
+
+    // Show loading spinner while checking auth state
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <LoadingSpinner size="lg" text="Checking authentication..." />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4">
             {/* 1. Background Animation Layer */}
-            <div 
+            <div
                 className="absolute inset-0 z-0 bg-gradient-to-r from-indigo-50 via-sky-100 to-blue-50"
                 style={{
                     // These styles enable the color gradient shift animation defined in tailwind.config.ts
@@ -87,7 +106,7 @@ const Login: React.FC = () => {
                                     className="h-11 text-base focus-visible:ring-primary"
                                 />
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <Label htmlFor="password" className="text-base font-medium">Password</Label>
                                 <Input
@@ -101,9 +120,9 @@ const Login: React.FC = () => {
                                 />
                             </div>
 
-                            <Button 
-                                type="submit" 
-                                className="w-full h-11 text-lg bg-primary hover:bg-primary/90 transition-colors" 
+                            <Button
+                                type="submit"
+                                className="w-full h-11 text-lg bg-primary hover:bg-primary/90 transition-colors"
                                 disabled={isLoading}
                             >
                                 {isLoading ? "Logging in..." : "Login"}
