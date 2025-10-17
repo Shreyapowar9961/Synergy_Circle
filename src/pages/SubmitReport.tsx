@@ -138,7 +138,7 @@ const SubmitReport = () => {
                     <SelectItem value="local">Garbage Issue</SelectItem>
                     <SelectItem value="other">Road Damage</SelectItem>
                     <SelectItem value="custom_other">Other Issue (Please Specify)</SelectItem>
-                  </SelectContent>
+              
                   </SelectContent>
                 </Select>
               </div>
