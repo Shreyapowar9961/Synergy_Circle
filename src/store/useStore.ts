@@ -56,6 +56,7 @@ interface AppState {
   reports: Report[];
   loading: boolean;
   error: string | null;
+  currentLanguage: string;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string, role: UserRole) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -64,6 +65,7 @@ interface AppState {
   initializeAuth: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setLanguage: (language: string) => void;
 }
 
 // Convert Firestore timestamp to Date
@@ -77,9 +79,11 @@ export const useStore = create<AppState>((set, get) => ({
   reports: [],
   loading: true,
   error: null,
+  currentLanguage: 'en',
 
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
+  setLanguage: (language: string) => set({ currentLanguage: language }),
 
   initializeAuth: () => {
     set({ loading: true });
@@ -114,8 +118,9 @@ export const useStore = create<AppState>((set, get) => ({
       set({ loading: true, error: null });
       await signInWithEmailAndPassword(auth, email, password);
       return true;
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      set({ error: errorMessage, loading: false });
       return false;
     }
   },
@@ -148,8 +153,9 @@ export const useStore = create<AppState>((set, get) => ({
     try {
       await signOut(auth);
       set({ user: null, reports: [] });
-    } catch (error: any) {
-      set({ error: error.message });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during logout';
+      set({ error: errorMessage });
     }
   },
 

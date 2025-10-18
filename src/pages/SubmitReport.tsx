@@ -59,6 +59,22 @@ const SubmitReport = () => {
       }
     );
   };
+  // Add these new state variables
+const [latInput, setLatInput] = useState('');
+const [lngInput, setLngInput] = useState('');
+// Add this new handler function
+const handleSetManualLocation = () => {
+  const lat = parseFloat(latInput);
+  const lng = parseFloat(lngInput);
+
+  if (isNaN(lat) || isNaN(lng)) {
+    alert('Please enter valid numbers for latitude and longitude.');
+    return;
+  }
+
+  // This assumes your state setter is named setLocation
+  setLocation({ lat, lng });
+};
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

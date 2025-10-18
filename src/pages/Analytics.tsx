@@ -5,19 +5,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Activity, Clock } from 'lucide-react';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
+// Define the new color palettes as requested
+// Pie Chart: Pink, Brown, Purple, Orange
+const PIE_COLORS = ['#ec4899', '#78350f', '#a855f7', '#f97316'];
+
+// Bar Chart: Red (Pending), Yellow (In Progress), Green (Resolved)
+const STATUS_COLORS = ['#ef4444', '#f59e0b', '#10b981'];
 
 const Analytics = () => {
   const reports = useStore((state) => state.reports);
 
   const stats = useMemo(() => {
     const categoryData = [
-      { name: 'Infrastructure', value: reports.filter(r => r.category === 'infrastructure').length },
-      { name: 'Environment', value: reports.filter(r => r.category === 'environment').length },
-      { name: 'Safety', value: reports.filter(r => r.category === 'safety').length },
-      { name: 'Other', value: reports.filter(r => r.category === 'other').length },
-    ];
+        { name: 'Accident Issue', value: reports.filter(r => String(r.category) === 'Accident Issue').length },
+        { name: 'Water Supply Issue', value: reports.filter(r => String(r.category) === 'Water Supply Issue').length },
+        { name: 'Drainage Problem', value: reports.filter(r => String(r.category) === 'Drainage Problem').length },
+        { name: 'Street Light Problem', value: reports.filter(r => String(r.category) === 'Street Light Problem').length },
+        { name: 'Garbage Issue', value: reports.filter(r => String(r.category) === 'Garbage Issue').length },
+        { name: 'Road Damage', value: reports.filter(r => String(r.category) === 'Road Damage').length },
+        { name: 'Other Issue', value: reports.filter(r => String(r.category) === 'Other Issue').length },
+    ].filter(item => item.value > 0);
 
+    // Data is already in the order: Pending, In Progress, Resolved
     const statusData = [
       { name: 'Pending', count: reports.filter(r => r.status === 'pending').length },
       { name: 'In Progress', count: reports.filter(r => r.status === 'in-progress').length },
@@ -27,16 +36,22 @@ const Analytics = () => {
     const resolvedReports = reports.filter(r => r.status === 'resolved');
     const avgResolutionTime = resolvedReports.length > 0
       ? resolvedReports.reduce((acc, r) => {
-          const time = (r.updatedAt.getTime() - r.createdAt.getTime()) / (1000 * 60 * 60 * 24);
+          // Ensure createdAt and updatedAt are Date objects
+          const created = new Date(r.createdAt);
+          const updated = new Date(r.updatedAt);
+          const time = (updated.getTime() - created.getTime()) / (1000 * 60 * 60 * 24); // time in days
           return acc + time;
         }, 0) / resolvedReports.length
       : 0;
+
+    const totalReports = reports.length;
+    const resolutionRate = totalReports > 0 ? (resolvedReports.length / totalReports) * 100 : 0;
 
     return {
       categoryData,
       statusData,
       avgResolutionTime: avgResolutionTime.toFixed(1),
-      resolutionRate: ((resolvedReports.length / reports.length) * 100).toFixed(1),
+      resolutionRate: resolutionRate.toFixed(1),
     };
   }, [reports]);
 
@@ -106,7 +121,12 @@ const Analytics = () => {
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="count" fill="#3b82f6" />
+                  <Bar dataKey="count">
+                    {/* Map over data to apply specific colors */}
+                    {stats.statusData.map((entry, index) => (
+                      <Cell key={`cell-${entry.name}`} fill={STATUS_COLORS[index % STATUS_COLORS.length]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -131,7 +151,8 @@ const Analytics = () => {
                     dataKey="value"
                   >
                     {stats.categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      // Use the new PIE_COLORS array
+                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip />
